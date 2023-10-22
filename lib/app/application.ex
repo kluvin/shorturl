@@ -10,7 +10,7 @@ defmodule App.Application do
     App.Release.migrate()
     children = [
       App.Repo,
-      {Plug.Cowboy, scheme: :http, plug: Router, options: [port: 4001]}
+      {Plug.Cowboy, scheme: :http, plug: App.Router, options: [port: 4001]}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

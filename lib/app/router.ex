@@ -1,4 +1,4 @@
-defmodule Router do
+defmodule App.Router do
   use Plug.Router
   plug(Plug.Logger)
   plug(Plug.Parsers, parsers: [:json], json_decoder: Jason)
