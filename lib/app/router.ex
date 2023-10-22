@@ -13,4 +13,10 @@ defmodule App.Router do
     conn |>
     App.Plugs.RedirectPlug.call([])
   end
+
+
+  get "/:destination" do
+    conn |>
+    App.Plugs.RedirectDispatchPlug.call([])  end
+
 end
