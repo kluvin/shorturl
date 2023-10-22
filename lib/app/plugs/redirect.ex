@@ -252,10 +252,10 @@ end
 defmodule App.Plugs.RedirectPlug do
   # We could compute this from the Shorteners module.
   @allowed_tactics %{
-    "b62" => &App.Plugs.Shorteners.b62/0,
-    "bankid" => &App.Plugs.Shorteners.bankid/0
+    b62: &App.Plugs.Shorteners.b62/0,
+    bankid: &App.Plugs.Shorteners.bankid/0
   }
-  @allowed_tactics_keys Map.keys(@allowed_tactics)
+  @allowed_tactics_keys Map.keys(@allowed_tactics) |> Enum.map(&Atom.to_string/1)
 
   import Plug.Conn
 
@@ -268,11 +268,14 @@ defmodule App.Plugs.RedirectPlug do
     end
   end
 
-  defp validate_params(%{"url" => nil}), do: {:error, "Missing 'url' parameter"}
-
   # explicit tactic
-  defp validate_params(%{"url" => _, "tactic" => tactic} = params) when tactic in @allowed_tactics_keys,
-    do: {:ok, params}
+  defp validate_params(%{"url" => _, "tactic" => tactic} = params)
+    when tactic in @allowed_tactics_keys, do: {:ok, params}
+
+  # explicit tactic, missing
+  defp validate_params(%{"url" => _, "tactic" => tactic} = params)
+    when tactic not in @allowed_tactics_keys, do: {:error, "Invalid tactic"}
+
 
   # default tactic
   defp validate_params(%{"url" => _} = params), do: {:ok, params}
@@ -282,8 +285,10 @@ defmodule App.Plugs.RedirectPlug do
   defp handle_redirect(conn, params) do
     destination =
       case params["tactic"] do
-        nil -> App.Plugs.Shorteners.b62()
-        tactic -> @allowed_tactics[tactic].()
+        nil -> App.Plugs.Shorteners.b62
+        # at this point we are sure the tactic exists
+        # but this approach feels volatile
+        tactic -> @allowed_tactics[String.to_atom(tactic)].()
       end
 
     %App.Schemas.Redirect{}
@@ -293,6 +298,6 @@ defmodule App.Plugs.RedirectPlug do
     })
     |> App.Repo.insert()
 
-    send_resp(conn, 201, "Redirect added")
+    send_resp(conn, 201, destination)
   end
 end
