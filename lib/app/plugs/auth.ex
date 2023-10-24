@@ -1,4 +1,4 @@
-# kindly borrowed
+# kindly borrowed the below Caesar cipher from, which is hardcoded to rot13
 # https://rosettacode.org/wiki/Caesar_cipher
 # Obviously, use something better, argon2-elixir seems OK
 # but now the process is relatively transparent, which can be a good.
