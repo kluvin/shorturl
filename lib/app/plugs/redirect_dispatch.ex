@@ -1,7 +1,5 @@
 defmodule App.Plugs.RedirectDispatchPlug do
   import Plug.Conn
-  import Ecto.Query
-
 
   def init(opts), do: opts
 

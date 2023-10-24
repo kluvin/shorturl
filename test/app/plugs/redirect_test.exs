@@ -3,6 +3,7 @@ defmodule App.Plugs.RedirectPlugTest do
   use ExUnit.Case, async: true
   use Plug.Test
 
+  @sample_url "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
   setup do
     # Reset state per run.
     App.Repo.delete_all(App.Schemas.Redirect)
@@ -39,7 +40,8 @@ defmodule App.Plugs.RedirectPlugTest do
   end
 
   test "disallows unauthorized access" do
-  conn = conn(:post, "/api/redirect/new", Jason.encode!(%{"url" => "https://www.youtube.com/watch?v=dQw4w9WgXcQ"}))
+    body = Jason.encode!(%{"url" => @sample_url})
+    conn = conn(:post, "/api/redirect/new", Jason.encode!(%{"url" => @sample_url}))
       |> put_req_header("content-type", "application/json")
       |> Router.call(@opts)
 
@@ -48,8 +50,8 @@ defmodule App.Plugs.RedirectPlugTest do
 
 
   test "inserts with default tactic", %{alfred: alfred} do
-    source = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
-    conn = conn(:post, "/api/redirect/new", Jason.encode!(%{"url" => source}))
+    body = Jason.encode!(%{"url" => @sample_url})
+    conn = conn(:post, "/api/redirect/new", body)
       |> put_req_header("content-type", "application/json")
       |> put_req_header("authorization", to_basic(alfred))
       |> Router.call(@opts)
@@ -58,14 +60,17 @@ defmodule App.Plugs.RedirectPlugTest do
 
     query = from r in App.Schemas.Redirect,
       select: r.source,
-      where: r.source == ^source
+      where: r.source == @sample_url
 
     assert App.Repo.exists?(query)
   end
 
   test "inserts with explicit tactic", %{alfred: alfred} do
-    source = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
-    conn = conn(:post, "/api/redirect/new", Jason.encode!(%{"url" => source, "tactic" => "bankid"}))
+    body = Jason.encode!(%{
+      "url" => @sample_url,
+      "tactic" => "bankid"
+    })
+    conn = conn(:post, "/api/redirect/new", body)
       |> put_req_header("content-type", "application/json")
       |> put_req_header("authorization", to_basic(alfred))
       |> Router.call(@opts)
@@ -74,14 +79,17 @@ defmodule App.Plugs.RedirectPlugTest do
 
     query = from r in App.Schemas.Redirect,
       select: r.source,
-      where: r.source == ^source
+      where: r.source == @sample_url
 
     assert App.Repo.exists?(query)
   end
 
   test "handles missing explicit tactic", %{alfred: alfred} do
-    source = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
-    conn = conn(:post, "/api/redirect/new", Jason.encode!(%{"url" => source, "tactic" => "blockchain"}))
+    body = Jason.encode!(%{
+      "url" => @sample_url,
+      "tactic" => "blockchain"
+    })
+    conn = conn(:post, "/api/redirect/new", body)
       |> put_req_header("content-type", "application/json")
       |> put_req_header("authorization", to_basic(alfred))
       |> Router.call(@opts)

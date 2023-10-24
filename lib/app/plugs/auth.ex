@@ -26,7 +26,10 @@ defmodule App.Plugs.AuthPlug do
         {:error, "User not found"}
 
       user ->
-        if Plug.Crypto.secure_compare(App.Auth.Caesar.encode(password), user.password) do
+        if Plug.Crypto.secure_compare(
+          App.Auth.Caesar.encode(password),
+          user.password
+        ) do
           {:ok, user}
         else
           {:error, "Incorrect password"}

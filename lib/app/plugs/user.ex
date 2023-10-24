@@ -2,8 +2,7 @@ defmodule App.Plugs.UserPlug do
   import Plug.Conn
 
   def init(opts), do: opts
-  def call(conn, _opts) do
-    # {email, password} = conn.params
+  def call(conn, opts) do
     %App.Schemas.User{}
     |> App.Schemas.User.changeset(%{
       email: conn.params["email"],
@@ -11,6 +10,6 @@ defmodule App.Plugs.UserPlug do
     })
     |> App.Repo.insert()
 
-    send_resp(conn, 201, _opts)
+    send_resp(conn, 201, opts)
   end
 end
