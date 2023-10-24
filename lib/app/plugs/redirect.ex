@@ -1,7 +1,7 @@
 defmodule App.Plugs.Shorteners do
   def b62() do
     # N = 62^5 = ~1B.
-    b62_alphabet = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
+    b62_alphabet = ~c"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
 
     1..5
     |> Enum.map(fn _ -> Enum.random(b62_alphabet) end)
@@ -247,7 +247,6 @@ defmodule App.Plugs.Shorteners do
     "#{Enum.random(adjectives)}-#{Enum.random(nouns)}"
   end
 end
-
 
 defmodule App.Plugs.RedirectPlug do
   # We could compute this from the Shorteners module.

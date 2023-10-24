@@ -10,10 +10,18 @@ defmodule App.Router do
   end
 
   post "/api/redirect/new" do
-    conn |>
-    App.Plugs.RedirectPlug.call([])
+    conn = App.Plugs.AuthPlug.call(conn, [])
+    unless conn.halted do
+      App.Plugs.RedirectPlug.call(conn, [])
+    else
+      conn
+    end
   end
 
+  post "/api/user/new" do
+    conn |>
+    App.Plugs.UserPlug.call([])
+  end
 
   get "/:destination" do
     conn |>

@@ -5,6 +5,7 @@ defmodule App.Schemas.Redirect do
     field :source, :string
     field :destination, :string
 
+    belongs_to :user, App.Schemas.User
     timestamps()
   end
 
