@@ -1,3 +1,4 @@
+.PHONY: dev release test
 
 dev:
 	@mix run --no-halt
@@ -5,3 +6,5 @@ dev:
 release:
 	flyctl deploy
 
+test:
+	@mix test
