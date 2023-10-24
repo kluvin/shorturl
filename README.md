@@ -2,7 +2,7 @@
 
 * get `/` shows a sign of life
 * get `/*` (matched first, thus excluding `api` looks for a redirect)
-* post `api/redirect/new` sets a new redirect | (takes JSON = {url: <string>})
+* post `api/redirect/new` sets a new redirect | (takes JSON = {url: <string>, type: <optional ["b62" | "bankid"]>})
 * post `api/user/new` creates a user | (takes JSON = {email: <string>, password: <string>}). Don't insert a sensitive password.
 
 Notably, API endpoints correspond to plugs and tables. 
@@ -15,10 +15,10 @@ The choice of using Elixir was decided by a fun-factor. If you squint enough, Ec
 
 The only large up-front concern I have is speed.
 
-* **Requirement** A redirect should always be served in well under 100ms.^1
+* **Requirement** A redirect should always be served in well under 100ms.[^1]
   * **Solution** SQLite. Using a client/server database with something like redis was an option, but this convoluted and heavy. Redis could be used in isolation but SQLite wins in portability and having persistence as a first-class citizen. Generally, I want my requests to be handled by one machine only.
 
-Going the common Phoenix route was considered, but there is inevitably more boilerplate. Phoenix is transparently using the same dependencies however, so a migration (should be) trivial[^2]. The app is deployed on fly.io which invests a lot into to Elixir ecosystem, but generally they will take any Docker image. Lastly, the coolest thing about URL shorteners is the links they create. I am going to have a pluggable architecture for these in the back of my mind[2].
+Going the common Phoenix route was considered, but there is inevitably more boilerplate. Phoenix is transparently using the same dependencies however, so a migration (should be) trivial. The app is deployed on fly.io which invests a lot into to Elixir ecosystem, but generally they will take any Docker image. Lastly, the coolest thing about URL shorteners is the links they create. I am going to have a pluggable architecture for these in the back of my mind[2].
 
 # Post implementation-notes
 
@@ -37,8 +37,10 @@ The notes for the challenge state to pay attention to architecture, design-patte
 * More tests, plus setup and their database interaction
 * Error-handling in user related parts of the app
 * Documentation for the endpoints, right now I will put it is in the readme
+* There's a reference to `b62` which does not look to be effective. I suspect a related bug where the `bankid` style shortener does not activate, and accordingly we have misleading test. As such, this would be fixed by reading the value and not checking for existence.
+* As a sidenote to above, we should store a `type` column on the `redirect` table.
 
 ## Comments on earlier statements
 
-[1] Post implementation I realize the domininant factor is still the internet connection, but I presume the application is operating under this constraint.
-[2] This was a bad idea, as I added an additional requirement. I still believe the idea was fun but it did add stress to reach the timeline.
+1. Post implementation I realize the domininant factor is still the internet connection, but I presume the application is operating under this constraint.
+2. This was a bad idea, as I added an additional requirement. I still believe the idea was fun but it did add stress to reach the timeline.
